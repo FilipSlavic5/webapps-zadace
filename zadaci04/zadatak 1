@@ -1,1 +1,57 @@
+import express from "express"
+import bodyParser from "body-parser"
+import {v4 as uuidv4} from "uuid"
+
+const app=express()
+const port=3000
+
+app.use(bodyParser.json())
+
+var tempStorage = []
+
+app.post("/dodajObavjest", (req,res) => {
+    var data = req.body
+
+    console.log(data)
+    data={... data, "id":uuidv4(), "datum": new Date()}
+    tempStorage.push(data)
+    res.send(tempStorage)
+})
+
+app.get("/vratiObavjesti", (req,res) => { 
+    let sortiranje = []
+
+    tempStorage.forEach(data=>{
+        sortiranje.push({
+            "naziv" : data.naziv,
+            "datum" : data.datum
+        })
+    });
+    res.send(sortiranje)
+});
+
+app.get("/vratiObavjest/:id", (req,res) => {
+    var { id } = req.params
+    console.log(id)
+    var obavijest = tempStorage.find((data) => data.id == id)
+    res.send({
+          "naziv": obavijest.naziv,
+           "datum" : obavijest.datum,
+           "sadrzaj" : obavijest.sadrzaj
+    })
+})
+
+app.patch("/izmjeniObavjest/:id",(req,res) => {
+    var { id } = req.params
+    console.log(id)
+    var obavijest = tempStorage.find((data) => data.id == id)
+    var { sadrzaj }= req.body
+    console.log(sadrzaj())
+    obavijest.sadrzaj=sadrzaj
+    res.send(obavijest)
+})
+
+app.listen(port, () => console.log(`Works on port ${port}`));
+
+
 
